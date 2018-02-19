@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class UserAccount {
+public abstract class UserAccount implements Serializable{
 
     private String username;
     private String password;
@@ -13,10 +14,15 @@ public abstract class UserAccount {
         active = true;
     }
 
-    
+    //Constructor to create a UserAccount with just a username
+    protected UserAccount(String username){
+        this.username = username;
+        active = true;
+    }
+
     public abstract void getPasswordHelp();
-    
-    
+
+
     //Returns true if the argument is the same as the account's password, false otherwise
     public boolean checkPassword(String password){
 
