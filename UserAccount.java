@@ -8,29 +8,25 @@ public abstract class UserAccount implements Serializable{
     private boolean active; //indicates whether or not the account is currently active
 
     //Constructor to initialize the username and password and make the account active
-    protected UserAccount(String username, String password){
+    public UserAccount(String username, String password){
         this.username = username;
         this.password = password;
         active = true;
     }
 
     //Constructor to create a UserAccount with just a username
-    protected UserAccount(String username){
+    public UserAccount(String username){
         this.username = username;
         active = true;
     }
 
     public abstract void getPasswordHelp();
 
-
     //Returns true if the argument is the same as the account's password, false otherwise
     public boolean checkPassword(String password){
-
-        if(this.password.equals(password)){
-            return true;
-        }
-        return false;
+         return this.password.equals(password);
     }
+
 
     //Sets active to false
     public void deactivateAccount(){

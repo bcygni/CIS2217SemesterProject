@@ -1,6 +1,8 @@
 public class UsernameNotFoundException extends Exception {
-	
-    public UsernameNotFoundException(){
-    	
+
+    public String username;
+
+    public UsernameNotFoundException(String username){
+        this.username = username;
     }
 }
