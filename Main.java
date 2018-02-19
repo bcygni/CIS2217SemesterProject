@@ -6,13 +6,10 @@ import java.io.ObjectInputStream;
 import java.util.*;
 
 //Ryan Betts
-//February 3rd, 2018
-//Facebook Friends
-//This program extends the Facebook class by adding the ability for Users to add and remove other users from their personal friends list
-//Uses a recursive method to find friends of friends of friends and recommends them to the the current user to add as a friend.
-//Also cleaned up a lot of the code and remove redundant methods
+//February 11th, 2018
+//Utility Methods
+//Run the main method in Utilities to test
 
-//Hint - type 111 in the main menu to get a list of all users and all their friends to help with debugging
 
 public class Main {
 
