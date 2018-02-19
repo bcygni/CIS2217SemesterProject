@@ -1,18 +1,22 @@
 import java.util.Objects;
 
-public class UserAccount {
+public abstract class UserAccount {
 
     private String username;
     private String password;
     private boolean active; //indicates whether or not the account is currently active
 
     //Constructor to initialize the username and password and make the account active
-    UserAccount(String username, String password){
+    protected UserAccount(String username, String password){
         this.username = username;
         this.password = password;
         active = true;
     }
 
+    
+    public abstract void getPasswordHelp();
+    
+    
     //Returns true if the argument is the same as the account's password, false otherwise
     public boolean checkPassword(String password){
 
