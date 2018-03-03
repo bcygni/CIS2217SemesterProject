@@ -1,2 +1,2 @@
-# CIS2217SemesterProject
+# JavaII Semester Project
 Facebook Project
