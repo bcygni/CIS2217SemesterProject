@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 //Ryan Betts
 //February 11, 2018
@@ -48,6 +49,12 @@ public class Utilities {
         for(T item : list)
             System.out.println(item);
     }
+
+    public static <T> void printTreeSet(TreeSet<T> list){
+        for(T item : list)
+            System.out.println(item);
+    }
+
 
     //Returns a deep copy of an ArrayList
     public static <T> ArrayList<T> copyList(ArrayList<T> list){
@@ -217,8 +224,8 @@ public class Utilities {
 
         System.out.println("\nTesting with String objects");
         String[] strArray = {"00", "000", "0.0", "   ", "-000\n0", "00", "\t", "0", "00", null, "", " "};
-        for(String s : strArray)
-            System.out.print("[" + s + "], ");
+        for(String i : strArray)
+            System.out.print("[" + i + "], ");
         System.out.println();
 
         testLinearSearch(strArray, "0");
@@ -230,15 +237,6 @@ public class Utilities {
         testLinearSearch(strArray, null);
         testLinearSearch(strArray, "-000\n0");
 
-        System.out.println("\nTesting with empty array");
-        Integer[] intArray = {};
-        for(Integer i : intArray)
-            System.out.print("[" + i + "], ");
-        System.out.println();      
-        
-        testLinearSearch(intArray, null);
-        testLinearSearch(intArray, 0);       
-        
     }
 
 

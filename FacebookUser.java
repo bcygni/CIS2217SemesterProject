@@ -1,23 +1,27 @@
 import java.util.ArrayList;
+import java.util.TreeSet;
+
 
 public class FacebookUser extends UserAccount implements Comparable<FacebookUser> {
 
     private String passwordHint;
     private ArrayList<FacebookUser> friends;
+    private TreeSet<String> likes;
 
 
     //Constructor for creating a FacebookUser with a username and password
     FacebookUser(String username, String password) {
         super(username, password);
         friends = new ArrayList<FacebookUser>();
+        likes = new TreeSet<String>();
     }
-
 
     //Constructor for creating a FacebookUser with username, password, and password hint
     FacebookUser(String username, String password, String hint) {
         super(username, password);
         passwordHint = hint;
         friends = new ArrayList<FacebookUser>();
+        likes = new TreeSet<String>();
     }
 
     //Sets passwordHint field
@@ -55,11 +59,35 @@ public class FacebookUser extends UserAccount implements Comparable<FacebookUser
     }
 
 
+    //Returns true if the thing is successfully added to the likes list, otherwise returns false
+    public Boolean addLike(String thing){
+        return likes.add(thing);
+    }
+
+    //Prints the likes TreeSet
+    public void printUserLikes() {
+        if (likes.size() > 0) {
+            Utilities.printTreeSet(likes);
+        } else {
+            System.out.println("Error - No likes to display!");
+        }
+
+        System.out.println("\nTotal Likes: " + likes.size());
+
+    }
+
+
+    public int getNumberOfFriends(){
+        return this.friends.size();
+    }
+
     //getFriends() returns an ArrayList deep copy of the friends ArrayList
     public ArrayList<FacebookUser> getFriends(){
-        ArrayList<FacebookUser> copy = new ArrayList<FacebookUser>();
-        copy.addAll(friends);
-        return copy;
+        return Utilities.copyList(friends);
+    }
+
+    public TreeSet<String> getLikes(){
+        return likes;
     }
 
 

@@ -1,10 +1,12 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Collections;
+import java.util.TreeSet;
 
 public class Facebook implements Serializable {
 
-    static Scanner in = new Scanner(System.in);
+    private static Scanner in = new Scanner(System.in);
 
     private ArrayList<FacebookUser> users;
 
@@ -13,13 +15,39 @@ public class Facebook implements Serializable {
 
     }
 
-    //Public methods that are used directly in driver program ***************************************
 
+    //Public methods that are used directly in driver program ***************************************
+    //Displays all users in an arbitrary order
     public void displayAllUsers() {
         if (users.size() > 0) {
             for (FacebookUser fbUser : users) {
                 System.out.println(fbUser.toString());
             }
+        } else {
+            System.out.println("Error - No users to display!");
+        }
+    }
+
+
+    //Displays a FacebookUser ArrayList sorted either alphabetically or by number of friends
+    public void displayAllUsers(int typeOfSort) {
+
+        if(users.size() > 0) {
+
+            //Create a deep copy of the list
+            ArrayList<FacebookUser> usersCopy = Utilities.copyList(users);
+
+                //if 0, then sort alphabetically
+            if (typeOfSort == 0) {
+                Collections.sort(usersCopy);
+                displayUserList(usersCopy);
+
+                //if 1, then sort the list by number of friends the FacebookUser has using the NumberOfFriendsComparator
+            } else if (typeOfSort == 1) {
+                usersCopy.sort(new NumberOfFriendsComparator());
+                displayUserListWithFriends(usersCopy);
+            }
+
         } else {
             System.out.println("Error - No users to display!");
         }
@@ -41,8 +69,21 @@ public class Facebook implements Serializable {
             users.add(new FacebookUser(username, password, passwordHint));
         }
 
+    }
+
+
+    public void addNewFacebookUser(String username, String password, String hint)
+            throws UsernameAlreadyExistsException {
+
+        if (checkIfUsernameExists(username, users)) {
+            throw new UsernameAlreadyExistsException(username);
+        }
+        else{
+            users.add(new FacebookUser(username, password, hint));
+        }
 
     }
+
 
     //Removes the FacebookUser associated with the username from the users ArrayList
     //Requires the password for the UserAccount in order to remove it
@@ -77,7 +118,6 @@ public class Facebook implements Serializable {
     }
 
 
-
     public void addFriend() {
 
         try {
@@ -93,6 +133,27 @@ public class Facebook implements Serializable {
 
         } catch (IncorrectPasswordException i) {
             System.out.println("Error: Incorrect password.");
+
+        } catch (UsernameAlreadyExistsException a) {
+            System.out.println("Error: " + a.username + " is already a friend.");
+
+        } catch (SameUsernameException s) {
+            System.out.println("Error: You cannot add yourself as a friend!");
+        }
+
+    }
+
+
+    public void addFriend(String usernameAdding, String usernameBeingAdded) {
+
+        try {
+
+            FacebookUser userAddingFriend = getUserFromUsername(usernameAdding);
+            FacebookUser friendToAdd = getUserFromUsername(usernameBeingAdded);
+            userAddingFriend.friend(friendToAdd);  //call the friend method to add the new friend to that users friends
+
+        } catch (UsernameNotFoundException u) {
+            System.out.println("Error: " + u.username + " could not be found.");
 
         } catch (UsernameAlreadyExistsException a) {
             System.out.println("Error: " + a.username + " is already a friend.");
@@ -127,6 +188,55 @@ public class Facebook implements Serializable {
     }
 
 
+
+    //EXPLANATION
+    //"Likes" are stored in a TreeSet within the FacebookUser class. A TreeSet is used because it...
+    //1. Automatically keeps everything in it sorted (Alphabetically for Strings)
+    //2. Prevents duplicate objects from being added to itself
+    //The program requires the Likes be unique and that the Likes be printed in alphabetical order therefore
+    //a TreeSet will work very well
+
+    public void addLike() {
+
+        try {
+
+            FacebookUser user = getUser("Enter username of user to add like: ");
+            enterPassword(user);
+            System.out.print("Enter thing to like: ");
+            String thing = in.nextLine();
+
+            //addLike returns true if the "thing" is successfully added to the likes list
+            //since the likes list is a TreeSet, only non-duplicate values can be added
+            if(user.addLike(thing)){
+                System.out.println(user.toString() + " likes " + thing + "!");
+            }
+            else{
+                System.out.println(thing + " has already been liked by " + user.toString());
+            }
+
+        } catch (UsernameNotFoundException u) {
+            System.out.println("Error: " + u.username + " could not be found. ");
+
+        } catch (IncorrectPasswordException i) {
+            System.out.println("Error: Incorrect password.");
+        }
+
+    }
+
+
+    public void displayLikes() {
+
+        try {
+
+            FacebookUser user = getUser("Enter username of user to display likes: ");
+            user.printUserLikes();
+
+        } catch (UsernameNotFoundException u) {
+            System.out.println("Error: " + u.username + " could not be found. ");
+        }
+    }
+
+
     public void displayFriendsList() {
 
         try {
@@ -144,7 +254,6 @@ public class Facebook implements Serializable {
     }
 
 
-
     private void enterPassword(FacebookUser user) throws IncorrectPasswordException{
         System.out.print("Enter password: ");
         String password = in.nextLine();
@@ -153,11 +262,6 @@ public class Facebook implements Serializable {
             throw new IncorrectPasswordException();
         }
     }
-
-
-
-    //Private Methods that take Strings as arguments ******************************************
-    //**************************************************************************************************
 
 
     //Returns true if the username is already in the userList, false if it is not in the userList
@@ -184,7 +288,21 @@ public class Facebook implements Serializable {
         throw new UsernameNotFoundException(username);
     }
 
-    
+
+    //Returns the FacebookUser object associated with a username
+    public FacebookUser getUserFromUsername(String username)
+            throws UsernameNotFoundException {
+
+        for (FacebookUser user : users) {
+            if (user.toString().equals(username)) {
+                return user;
+            }
+        }
+        throw new UsernameNotFoundException(username);
+    }
+
+
+
     private FacebookUser getUserFromList(String prompt, ArrayList<FacebookUser> userList)
             throws UsernameNotFoundException {
     	
@@ -215,7 +333,7 @@ public class Facebook implements Serializable {
         try {
             FacebookUser user = getUser("Enter username of user to display recommended friends: ");
             enterPassword(user);
-            displayUserList(getRecommendations(user, recommendations, user));
+            displayUserListWithFriends(getRecommendations(user, recommendations, user));
         } catch (UsernameNotFoundException u){
             System.out.println("Error: " + u.username + " could not be found.");
         } catch (IncorrectPasswordException i){
@@ -259,13 +377,12 @@ public class Facebook implements Serializable {
             }
         }
 
+        recommendations.sort(new NumberOfFriendsComparator());
         return recommendations;
     }
 
 
-
-
-    //Methods that take FacebookUser objects or lists as arguments and directly affect an ArrayList of FacebookUsers
+    //Methods that take FacebookUser objects or Collection objects as arguments and directly affect an ArrayList of FacebookUsers
 
     private void displayUserList(ArrayList<FacebookUser> userList) {
         if (userList.size() > 0) {
@@ -276,6 +393,21 @@ public class Facebook implements Serializable {
             System.out.println("Error - No users to display!");
         }
     }
+
+
+    private void displayUserListWithFriends(ArrayList<FacebookUser> userList) {
+        if (userList.size() > 0) {
+            for (FacebookUser fbUser : userList) {
+                System.out.println(fbUser.toString() + ": " + fbUser.getNumberOfFriends());
+            }
+        } else {
+            System.out.println("Error - No users to display!");
+        }
+
+        System.out.println("\nTotal in list: " + userList.size());
+
+    }
+
 
     private void removeUser(FacebookUser userToRemove) {
         users.remove(userToRemove);

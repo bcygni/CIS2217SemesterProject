@@ -3,16 +3,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.util.*;
 
 //Ryan Betts
-//February 11th, 2018
-//Utility Methods
-//Run the main method in Utilities to test
-
+//March 18th, 2018
+//Liking Things - 2 new menu options added, 1 for Liking Something and 1 for listing likes.
+//Specific users can now have their own individual "Likes" list which can be added to.
+//The Likes list only allows unique items and is automatically sorted alphabetically using a TreeSet
 
 public class Main {
-
 
     public static void main(String[] args) {
 
@@ -28,15 +29,18 @@ public class Main {
         while (true) {
 
             System.out.println("\n\nMenu");
-            System.out.println("1. List Users");
-            System.out.println("2. Add User");
-            System.out.println("3. Delete User");
-            System.out.println("4. Get Password Hint");
-            System.out.println("5. Add Friend");
-            System.out.println("6. Remove Friend");
-            System.out.println("7. List Friends");
-            System.out.println("8. Friend Recommendations");
-            System.out.println("9. Quit");
+            System.out.println("1. List Users Alphabetically");
+            System.out.println("2. List Users by Number of Friends");
+            System.out.println("3. Add User");
+            System.out.println("4. Delete User");
+            System.out.println("5. Get Password Hint");
+            System.out.println("6. Add Friend");
+            System.out.println("7. Remove Friend");
+            System.out.println("8. List Friends");
+            System.out.println("9. Friend Recommendations");
+            System.out.println("10. Like Something");
+            System.out.println("11. List Likes");
+            System.out.println("12. Quit");
 
             System.out.print("Make a selection: ");
             if(in.hasNextInt()) {
@@ -44,39 +48,54 @@ public class Main {
             }
             else {
                 in.nextLine();
-                selection = 0;
+                selection = -1;
             }
 
             switch (selection) {
                 case (1):
-                    fb.displayAllUsers();
+                    fb.displayAllUsers(0);
                     break;
                 case (2):
-                    fb.addNewFacebookUser();
+                    fb.displayAllUsers(1);
                     break;
                 case (3):
-                    fb.deleteFacebookUser();
+                    fb.addNewFacebookUser();
                     break;
                 case (4):
-                    fb.getPasswordHint();
+                    fb.deleteFacebookUser();
                     break;
                 case (5):
-                    fb.addFriend();
+                    fb.getPasswordHint();
                     break;
                 case (6):
-                    fb.removeFriend();
+                    fb.addFriend();
                     break;
                 case (7):
-                    fb.displayFriendsList();
+                    fb.removeFriend();
                     break;
                 case (8):
-                    fb.displayRecommendations();
+                    fb.displayFriendsList();
                     break;
                 case (9):
+                    fb.displayRecommendations();
+                    break;
+                case (10):
+                    fb.addLike();
+                    break;
+                case (11):
+                    fb.displayLikes();
+                    break;
+                case (12):
                     System.out.println("Goodbye!");
                     System.exit(0);
                 case(111):
                     fb.listAllUsersAndFriends();
+                    break;
+                case(222):
+                    fb = importUsers("import_users.txt", fb);
+                    break;
+                case(333):
+                    fb = importFriends("import_friends.txt", fb);
                     break;
                 default:
                     System.out.println("Invalid selection.\n");
@@ -99,7 +118,7 @@ public class Main {
             fileOut.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Error saving data.");
         }
 
@@ -119,11 +138,82 @@ public class Main {
             fileIn.close();
 
         } catch (IOException | ClassNotFoundException e) {
+            //e.printStackTrace();
             System.out.println("facebook.dat could not be loaded. New Facebook Object created.");
         }
 
         return fb;
 
+    }
+
+    //Imports new FacebookUsers from a text file
+    private static Facebook importUsers(String textFile, Facebook fb) {
+
+        try {
+
+            FileReader fileReader = new FileReader(textFile);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+            String[] tempArray;
+
+            while(true) {
+                line = bufferedReader.readLine();
+                if (line != null) {
+
+                    //Split the line by tabs and store into tempArray
+                    tempArray = line.split("\t");
+
+                    //Create new FacebookUser objects and add them the users list
+                    try{
+                        fb.addNewFacebookUser(tempArray[0], tempArray[1], tempArray[2]);
+                    } catch (UsernameAlreadyExistsException e){
+                        System.out.println(e + " is already a username. Cannot import.");
+                    }
+
+                } else {
+                    break;
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error. Could not import users from " + textFile);
+        }
+
+        return fb;
+    }
+
+    //Imports friend lists from a text file
+    private static Facebook importFriends(String textFile, Facebook fb) {
+
+        try {
+            FileReader fileReader = new FileReader(textFile);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+            String[] tempArray;
+            String usernameAdding;
+
+
+            while(true) {
+                line = bufferedReader.readLine();
+                if (line != null) {
+
+                    //Split the line by tabs and store into tempArray
+                    tempArray = line.split("\t");
+                    usernameAdding = tempArray[0];
+
+                    for (String userAdded : tempArray){
+                        fb.addFriend(usernameAdding, userAdded);
+                    }
+                } else {
+                    break;
+                }
+            }
+
+        } catch (IOException e) {
+            //e.printStackTrace();
+            System.out.println("Error. Could not import users from " + textFile);
+        }
+        return fb;
     }
 
 
