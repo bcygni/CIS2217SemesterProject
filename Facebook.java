@@ -349,8 +349,9 @@ public class Facebook implements Serializable {
         for(FacebookUser recFriend : user.getFriends()){
 
             //If the recommendations list already contains the new recommended friend, return the recommendations list
+            //or if the recommended friend is the original user, return the recommendations list
             //Because all of their friends (and friends of friends) should already be in the list
-            if(recommendations.contains(recFriend)){
+            if (recommendations.contains(recFriend) || recFriend.equals(origUser)) {
                 //System.out.println(recFriend.toString() + " is already in the recommended friends list");
                 return recommendations;
             }
@@ -369,11 +370,6 @@ public class Facebook implements Serializable {
                 //Recursive call of getRecommendations
                 getRecommendations(recFriend, recommendations, origUser);
 
-                //if the original user's friends already contains the recommended friend, remove that user from
-                //the recommended friends so as to not recommend a user that is already a friend or recommend themselves
-                if(origUser.getFriends().contains(recFriend) || recFriend.toString().equals(origUser.toString())){
-                    recommendations.remove(recFriend);
-                }
             }
         }
 
